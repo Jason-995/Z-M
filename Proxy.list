@@ -1,3 +1,4 @@
+# 机场域名
 DOMAIN-SUFFIX,ftzcc01.fliggycloud.pro
 DOMAIN-SUFFIX,llgjc1.com
 DOMAIN-SUFFIX,xsus.wiki
@@ -8,6 +9,12 @@ DOMAIN-SUFFIX,ouo.ouonet.work
 DOMAIN-SUFFIX,ouonetwork.shop
 DOMAIN-SUFFIX,landing.ouonetwork.com
 DOMAIN-SUFFIX,seele.xiercloud.uk
+DOMAIN-SUFFIX,mitce.com
+DOMAIN-SUFFIX,www.bigme.pro
+DOMAIN-SUFFIX,www.nutbit.net
+DOMAIN-SUFFIX,hongxingdl.com
+DOMAIN-SUFFIX,5.6bcloud.top
+
 # IP段匹配
 IP-CIDR,142.171.133.131/32,no-resolve
 IP-CIDR,103.115.43.2/32,no-resolve
