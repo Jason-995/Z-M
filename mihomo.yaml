@@ -1,0 +1,176 @@
+############################################## 锚点区 ##############################################
+### 远程订阅组
+NodeParam: &NodeParam {type: http, interval: 86400, health-check: {enable: true, url: 'http://connectivitycheck.platform.hicloud.com/generate_204', interval: 300}}
+### 通用排除规则
+ExcludeFilter: &ExcludeFilter '网站|地址|剩余|过期|时间|有效|网址|禁止|邮箱|发布|客服|订阅|节点'
+### 筛选组
+FilterHK: &FilterHK '^(?=.*(香港|HK|Hong|🇭🇰))^(?!.*($ExcludeFilter)).*$'
+FilterJP: &FilterJP '^(?=.*(日本|JP|Japan|🇯🇵))^(?!.*($ExcludeFilter)).*$'
+FilterSG: &FilterSG '^(?=.*(新加坡|狮城|SG|Singapore|🇸🇬))^(?!.*($ExcludeFilter)).*$'
+FilterUS: &FilterUS '^(?=.*(美国|US|United States|America|🇺🇸))^(?!.*($ExcludeFilter)).*$'
+FilterTW: &FilterTW '^(?=.*(台湾|TW|Taiwan|Wan|🇹🇼|🇨🇳))^(?!.*($ExcludeFilter)).*$'
+FilterAll: &FilterAll '^(?=.*(.))(?!.*((?i)群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|(\b(USE|USED|TOTAL|EXPIRE|EMAIL|Panel|Channel|Author)\b|(\d{4}-\d{2}-\d{2}|\d+G)))).*$'
+### 策略组
+Auto: &Auto {type: url-test, url: 'http://connectivitycheck.platform.hicloud.com/generate_204', interval: 300, tolerance: 50, disable-udp: false, hidden: true, include-all: true}
+### 选择组 
+Select1: &Select1 {type: select, proxies: [HongKong, Japan, Singapore, TaiWan, America, AllServer, DIRECT]}
+Select2: &Select2 {type: select, proxies: [Proxy, HongKong, Japan, Singapore, TaiWan, America, AllServer, DIRECT]}
+### 规则集 
+DomainMrs: &DomainMrs {type: http, interval: 86400, behavior: domain, format: mrs}
+IPcidrMrs: &IPcidrMrs {type: http, interval: 86400, behavior: ipcidr, format: mrs}
+Domaintext: &Domaintext {type: http, interval: 86400, behavior: domain, format: text}
+Classicaltext: &Classicaltext {type: http, interval: 86400, behavior: classical, format: text}
+
+############################################## 锚点区 ############################################# 
+
+### 订阅
+proxy-providers:
+  Node: {<<: *NodeParam, url: '*'}
+
+### 全局配置
+mixed-port: 7890
+allow-lan: true
+mode: rule
+log-level: error
+ipv6: true
+find-process-mode: strict
+external-controller: 0.0.0.0:9090
+external-ui: ui
+external-ui-url: 'https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip'
+secret: "123456"
+profile:
+  store-selected: true
+  store-fake-ip: true
+unified-delay: true
+tcp-concurrent: true
+global-client-fingerprint: chrome
+### 域名嗅探
+sniffer:
+  enable: true
+  parse-pure-ip: true
+  sniff: {HTTP: {ports: [80, 8080-8880], override-destination: true}, TLS: {ports: [443, 8443]}, QUIC: {ports: [443, 8443]}}
+  skip-domain: ['Mijia Cloud']
+### Tunnel配置
+tun:
+  enable: true
+  stack: mixed
+  dns-hijack: [any:53]
+  auto-route: true
+  auto-detect-interface: true
+  device: mihomo
+  strict-route: true
+### DNS配置
+dns:
+  enable: true
+  prefer-h3: true
+  ipv6: true
+  listen: 0.0.0.0:53
+  fake-ip-range: 198.18.0.1/16
+  enhanced-mode: fake-ip
+  fake-ip-filter: ['rule-set:fakeip-filter,trackerslist,private,cn']
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+  direct-nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+
+proxy-groups:
+  - {name: Proxy,         <<: *Select1, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/rocket(1).png}
+  - {name: Telegram,      <<: *Select2, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/telegram(1).png}
+  - {name: AIGC,          <<: *Select2, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/gemini.png}
+  - {name: Streaming,     <<: *Select2, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/play.png}
+  - {name: Emby,          <<: *Select2, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/emby.png}
+  - {name: Games,         <<: *Select2, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/game.png}
+  - {name: Microsoft,     <<: *Select2, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/microsoft.png}
+  - {name: Apple,         <<: *Select2, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/apple.png}
+# 地区策略
+  - {name: HongKong,    type: select, proxies: [HK-AUTO], include-all: true, filter: *FilterHK, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/Hongkong(3).png}
+  - {name: Japan,       type: select, proxies: [JP-AUTO], include-all: true, filter: *FilterJP, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/Japan(2).png}
+  - {name: Singapore,   type: select, proxies: [SG-AUTO], include-all: true, filter: *FilterSG, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/singapore.png}
+  - {name: America,     type: select, proxies: [US-AUTO], include-all: true, filter: *FilterUS, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/US(2).png}
+  - {name: TaiWan,      type: select, proxies: [TW-AUTO], include-all: true, filter: *FilterTW, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/taiwan(4).png}
+# 其他策略
+  - {name: AllServer,   type: select, include-all: true, filter: *FilterAll, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/quanqiu(3).png}
+  - {name: Final,       type: select, proxies: [Proxy, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png}
+# 自动测速
+  - {name: HK-AUTO,    <<: *Auto, filter: *FilterHK, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png}
+  - {name: TW-AUTO,    <<: *Auto, filter: *FilterTW, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png}
+  - {name: SG-AUTO,    <<: *Auto, filter: *FilterSG, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png}
+  - {name: JP-AUTO,    <<: *Auto, filter: *FilterJP, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png}
+  - {name: US-AUTO,    <<: *Auto, filter: *FilterUS, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png}
+
+rule-providers:
+  emby:               {<<: *Classicaltext, url: https://github.com/666OS/YYDS/raw/main/mihomo/rules/emby.list}
+  fakeip-filter:      {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/fakeip-filter.mrs}
+  private:            {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/private.mrs}
+  ads:                {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/ads.mrs}
+  trackerslist:       {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/trackerslist.mrs}
+  applications:       {<<: *Classicaltext, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/applications.list}
+  apple_cdn:          {<<: *Domaintext, url: https://ruleset.skk.moe/Clash/domainset/apple_cdn.txt}
+  microsoft-cn:       {<<: *Classicaltext, url: https://ruleset.skk.moe/Clash/non_ip/microsoft_cdn.txt}
+  apple-cn:           {<<: *Classicaltext, url: https://ruleset.skk.moe/Clash/non_ip/apple_cn.txt}
+  microsoft:          {<<: *Classicaltext, url: https://ruleset.skk.moe/Clash/non_ip/microsoft.txt}
+  apple:              {<<: *Classicaltext, url: https://ruleset.skk.moe/Clash/non_ip/apple_services.txt}
+  games-cn:           {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/games-cn.mrs}
+  netflix:            {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/netflix.mrs}
+  disney:             {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/disney.mrs}
+  max:                {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/max.mrs}
+  primevideo:         {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/primevideo.mrs}
+  appletv:            {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/appletv.mrs}
+  youtube:            {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/youtube.mrs}
+  tiktok:             {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/tiktok.mrs}
+  bilibili:           {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/bilibili.mrs}
+  spotify:            {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/spotify.mrs}
+  media:              {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/media.mrs}
+  games:              {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/games.mrs}
+  ai:                 {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/ai.mrs}
+  networktest:        {<<: *Classicaltext, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/networktest.list}
+  tld-proxy:          {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/tld-proxy.mrs}
+  proxy:              {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/proxy.mrs}
+  cn:                 {<<: *DomainMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.mrs}
+  privateip:          {<<: *IPcidrMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/privateip.mrs}
+  cnip:               {<<: *IPcidrMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cnip.mrs}
+  netflixip:          {<<: *IPcidrMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/netflixip.mrs}
+  mediaip:            {<<: *IPcidrMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/mediaip.mrs}
+  gamesip:            {<<: *IPcidrMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/gamesip.mrs}
+  telegramip:         {<<: *IPcidrMrs, url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/telegramip.mrs}
+
+rules:
+  ### 域名规则集
+  - DOMAIN-SUFFIX,micu.hk,DIRECT
+  - RULE-SET,emby,Emby
+  - RULE-SET,ads,REJECT
+  - RULE-SET,trackerslist,DIRECT
+  - RULE-SET,applications,DIRECT
+  - RULE-SET,apple_cdn,DIRECT
+  - RULE-SET,microsoft-cn,DIRECT
+  - RULE-SET,apple-cn,DIRECT
+  - RULE-SET,microsoft,Microsoft
+  - RULE-SET,apple,Apple
+  - RULE-SET,games-cn,DIRECT
+  - RULE-SET,netflix,Streaming
+  - RULE-SET,disney,Streaming
+  - RULE-SET,max,Streaming
+  - RULE-SET,primevideo,Streaming
+  - RULE-SET,appletv,Streaming
+  - RULE-SET,youtube,Streaming
+  - RULE-SET,tiktok,Streaming
+  - RULE-SET,bilibili,DIRECT
+  - RULE-SET,spotify,Streaming
+  - RULE-SET,media,Streaming
+  - RULE-SET,games,Games
+  - RULE-SET,ai,AIGC
+  - RULE-SET,networktest,Proxy
+  - RULE-SET,tld-proxy,Proxy
+  - RULE-SET,proxy,Proxy
+  - RULE-SET,cn,DIRECT
+  - RULE-SET,private,DIRECT
+  ### IP 规则集
+  - RULE-SET,netflixip,Streaming,no-resolve
+  - RULE-SET,mediaip,Streaming,no-resolve
+  - RULE-SET,gamesip,Games,no-resolve
+  - RULE-SET,telegramip,Telegram,no-resolve
+  - RULE-SET,privateip,DIRECT,no-resolve
+  - RULE-SET,cnip,DIRECT,no-resolve
+  - MATCH,Final
