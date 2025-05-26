@@ -13,7 +13,7 @@ LoadBalanceCH: &LoadBalanceCH {type: load-balance, interval: 60, lazy: true, url
 
 ### 订阅链接
 proxy-providers:
-  P1: {<<: *PP, url: '机场订阅地址'}
+  P1: {<<: *PP, url: '机场订阅'}
 
 ### 全局配置
 mode: rule
